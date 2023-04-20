@@ -130,7 +130,7 @@ class TwitterScraper:
         return tweets
 
     def scrape(self):
-        tweet_db = create_storage(sqlite_db_path='sqlite:///../tweets.db')
+        tweet_db = create_storage(mode='inmem')
 
         self.login()
         tweets = self.get_tweets(100)

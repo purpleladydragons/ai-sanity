@@ -4,11 +4,15 @@ from abc import ABC, abstractmethod
 from .sql import Tweet, TweetDatabase
 
 
-def create_storage(use_dynamodb=False, table_name=None, sqlite_db_path=None):
-    if use_dynamodb:
+def create_storage(mode='inmem', table_name=None, sqlite_db_path=None):
+    if mode == 'inmem':
+        return InMemStorage()
+    elif mode == 'dynamo':
         return DynamoDBStorage(table_name)
-    else:
+    elif mode == 'sql':
         return SQLiteStorage(sqlite_db_path)
+    else:
+        raise Exception(f'Invalid storage mode {mode}')
 
 
 class Storage(ABC):
@@ -27,6 +31,28 @@ class Storage(ABC):
     @abstractmethod
     def get_100_most_recent(self):
         pass
+
+
+# persist the storage outside of instance to avoid needing to DI the same instance everywhere
+tweets = {}
+class InMemStorage(Storage):
+    def __init__(self):
+        self.tweets = tweets
+
+    def put(self, data):
+        self.tweets[data['tweet_id']] = data
+        return data['tweet_id']
+
+    def get(self, key):
+        if key in self.tweets:
+            return self.tweets[key]
+        return None
+
+    def delete(self, key):
+        del(self.tweets[key])
+
+    def get_100_most_recent(self):
+        return list(self.tweets.values())[-100:]
 
 
 class SQLiteStorage(Storage):
