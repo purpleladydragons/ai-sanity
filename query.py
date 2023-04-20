@@ -14,6 +14,7 @@ def chatWithGPT(prompt, model='gpt-3.5-turbo'):
     )
     return completion.choices[0].message.content
 
+
 load_dotenv()
 openai.api_key = os.getenv('OPENAI_API_KEY')
 
@@ -23,7 +24,7 @@ def filter_tweets():
     Session = sessionmaker(bind=engine)
     session = Session()
 
-    # Query the 100 most recent records from the 'tweets' table
+    # query the 100 most recent records from the 'tweets' table
     recent_tweets = (
         session.query(Tweet.username, Tweet.content, Tweet.tweet_id)
             .order_by(desc(Tweet.created_at))
@@ -31,7 +32,7 @@ def filter_tweets():
             .all()
     )
 
-    # TODO modify this so... that we make intermdediate calls to gpt with query of ~20 tweets, and then flush and do again
+    # TODO very ugly... basically trying to work around gpt's token limit
     i = 0
     prepend_query = 'Please filter out any tweets that are not about AI.\n'
     query = ''
@@ -61,6 +62,7 @@ def filter_tweets():
 
     return '\n'.join(resps)
 
+
 def summarize_tweets(tweets):
     prompt = "Please summarize the following list of AI tweets. " \
              "Please try to achieve a perfect blend of depth and breadth. " \
@@ -69,11 +71,9 @@ def summarize_tweets(tweets):
              "Users X and Y are talking about BabyAGI, which is an agentic version of GPT." \
              "Do it step by step. First, identify the major talking points. " \
              "Then, associate appropriate tweets with each talking point. " \
-             "For each summary, make sure to include the username and tweet id for the relevant tweets."
+             "For each summary, make sure to include the tweet id for the relevant tweets."
     print('tokens', len((prompt + ' ' + tweets).split()))
     resp = chatWithGPT(prompt + '\n' + tweets, model='gpt-4')
-    print(resp)
+    return resp
 
-tweets = filter_tweets()
-print(len(tweets.split('\n')), 'filtered tweets')
-summarize_tweets(tweets)
+
