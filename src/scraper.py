@@ -112,9 +112,10 @@ class TwitterScraper:
         page.goto(f'https://twitter.com')
         time.sleep(5)
 
+        then = time.time()
         tweets = set()
         # TODO add time-based failsafe in case timeline isn't loading
-        while len(tweets) < tweet_count:
+        while len(tweets) < tweet_count and (time.time() - then < 180):
             new_tweets = page.query_selector_all('//section[@aria-labelledby="accessible-list-1"]//article')
             print('new tweets', len(new_tweets))
             for tweet in new_tweets:
