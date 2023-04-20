@@ -14,7 +14,6 @@ down_revision = None
 branch_labels = None
 depends_on = None
 
-
 def upgrade():
     op.create_table(
         'tweets',
@@ -25,7 +24,7 @@ def upgrade():
         sa.Column('content', sa.String, nullable=False),
         sa.Column('num_likes', sa.Integer, nullable=False),
         sa.Column('tweet_time', sa.TIMESTAMP, nullable=False),
-        sa.Column('created_at', sa.TIMESTAMP, nullable=False, server_default=sa.text('CURRENT_TIMESTAMP')),
+        sa.Column('created_at', sa.TIMESTAMP, nullable=False, server_default=sa.text('now')),
     )
 
 

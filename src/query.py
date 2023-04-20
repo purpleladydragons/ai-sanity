@@ -1,9 +1,7 @@
-from sqlalchemy import create_engine, desc
-from sqlalchemy.orm import sessionmaker
-from db import Tweet
 import os
 import openai
 from dotenv import load_dotenv
+from data.storage import create_storage
 
 def chatWithGPT(prompt, model='gpt-3.5-turbo'):
     completion = openai.ChatCompletion.create(
@@ -20,17 +18,9 @@ openai.api_key = os.getenv('OPENAI_API_KEY')
 
 
 def filter_tweets():
-    engine = create_engine("sqlite:///tweets.db")
-    Session = sessionmaker(bind=engine)
-    session = Session()
+    storage = create_storage(sqlite_db_path='sqlite:///../tweets.db')
 
-    # query the 100 most recent records from the 'tweets' table
-    recent_tweets = (
-        session.query(Tweet.username, Tweet.content, Tweet.tweet_id)
-            .order_by(desc(Tweet.created_at))
-            .limit(100)
-            .all()
-    )
+    recent_tweets = storage.get_100_most_recent()
 
     # TODO very ugly... basically trying to work around gpt's token limit
     i = 0
@@ -56,9 +46,6 @@ def filter_tweets():
     if len(query) > 0:
         resp = chatWithGPT(prepend_query + query)
         resps.append(resp)
-
-    # Close the session
-    session.close()
 
     return '\n'.join(resps)
 

@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 import os
 import re
 import time
-from db import TweetDatabase
 import datetime
+from data.storage import create_storage
 
 
 class TwitterScraper:
@@ -113,6 +113,7 @@ class TwitterScraper:
         time.sleep(5)
 
         tweets = set()
+        # TODO add time-based failsafe in case timeline isn't loading
         while len(tweets) < tweet_count:
             new_tweets = page.query_selector_all('//section[@aria-labelledby="accessible-list-1"]//article')
             print('new tweets', len(new_tweets))
@@ -129,14 +130,14 @@ class TwitterScraper:
         return tweets
 
     def scrape(self):
-        tweet_db = TweetDatabase('sqlite:///tweets.db')
+        tweet_db = create_storage(sqlite_db_path='sqlite:///../tweets.db')
 
         self.login()
         tweets = self.get_tweets(100)
         for tweet in tweets:
             info = self.extract_tweet_info(tweet)
             if info is not None:
-                tweet_id = tweet_db.insert_tweet(info)
+                tweet_id = tweet_db.put(info)
                 print('inserted tweet', tweet_id)
             else:
                 print('skipping tweet')

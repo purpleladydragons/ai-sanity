@@ -1,7 +1,9 @@
-from sqlalchemy import create_engine, Column, Integer, String, TIMESTAMP, exists
+import datetime
+
+import sqlalchemy as sa
+from sqlalchemy import create_engine, Column, Integer, String, TIMESTAMP, exists, desc, func
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
-from datetime import datetime
 
 Base = declarative_base()
 
@@ -16,16 +18,13 @@ class Tweet(Base):
     content = Column(String, nullable=False)
     num_likes = Column(Integer, nullable=False)
     tweet_time = Column(TIMESTAMP, nullable=False)
-    created_at = Column(TIMESTAMP, nullable=False, server_default='CURRENT_TIMESTAMP')
+    created_at = Column(TIMESTAMP, nullable=False, server_default=sa.text('now'))
 
 
 class TweetDatabase:
     def __init__(self, db_url):
-        # Create an SQLite database engine
         self.engine = create_engine(db_url)
-        # Create the "tweets" table in the database (if it doesn't exist)
         Base.metadata.create_all(self.engine)
-        # Create a session to interact with the database
         self.Session = sessionmaker(bind=self.engine)
 
     def insert_tweet(self, tweet_dict):
@@ -44,6 +43,8 @@ class TweetDatabase:
             content=tweet_dict['tweet_text'],
             num_likes=tweet_dict['num_likes'],
             tweet_time=tweet_dict['time_tweeted'],
+            # TODO i know this is very bad, but for whatever godforsaken reason, CURRENT_TIMESTAMP is not working on the sqlite side
+            created_at=datetime.datetime.now()
         )
         # Add the new tweet to the session
         session.add(new_tweet)
@@ -55,3 +56,14 @@ class TweetDatabase:
         # Close the session
         session.close()
         return id
+
+    def get_100_most_recent(self):
+        session = self.Session()
+        recent_tweets = (
+            session.query(Tweet.username, Tweet.content, Tweet.tweet_id)
+                .order_by(desc(Tweet.created_at))
+                .limit(100)
+                .all()
+        )
+        session.close()
+        return recent_tweets
