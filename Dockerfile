@@ -1,4 +1,4 @@
-FROM mcr.microsoft.com/playwright/python:v1.30.0-focal
+FROM mcr.microsoft.com/playwright/python:v1.32.1-focal
 
 
 # Set the working directory in the container
@@ -11,4 +11,4 @@ COPY . .
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Run the command to start the application
-CMD ["python", "src/main.py"]
+CMD ["python", "src/app.py"]

@@ -5,6 +5,7 @@ import re
 import time
 import datetime
 from data.storage import create_storage
+from .emailer import send_email_with_attachment, send_email
 
 
 class TwitterScraper:
@@ -114,9 +115,10 @@ class TwitterScraper:
 
         then = time.time()
         tweets = set()
-        # TODO add time-based failsafe in case timeline isn't loading
+
         while len(tweets) < tweet_count and (time.time() - then < 180):
-            new_tweets = page.query_selector_all('//section[@aria-labelledby="accessible-list-1"]//article')
+            # TODO accessible-list-1 works locally... but it seems that it might be 0 on aws
+            new_tweets = page.query_selector_all('//section[@aria-labelledby="accessible-list-0"]//article')
             print('new tweets', len(new_tweets))
             for tweet in new_tweets:
                 inner_html = tweet.inner_html()

@@ -81,11 +81,11 @@ Tweet 71 (@natalietran/1648558456570257409): I think my AI companion suddenly wa
 Tweet 72 (@natfriedman/1649100349888937984): Google Brain merges with DeepMind, under Demis's leadership. An excellent move by Google.
 
 Example response:
-- Google has announced changes to DeepMind. Google Brain is merging with DeepMind. (@natfriedman/status/1649100349888937984) (@DeepMind/status/1649097824221511698) (@DeepMind/status/1649097822338449409) (@KerryLVaughan/status/1649109062313811969)
-- CoreWeave has raised money on recent growth, from investors like Nat Friedman, Daniel Gross, and Nvidia. They are are building a new AWS for AI. (@danielgross/status/1649113439917178892) (@natfriedman/status/1649101281028624385)
-- Andrew Ng is hosting a talk on Visual Prompting. (@AndrewYNg/status/1649135210976657410)
-- There is concern around self-improving agentic AIs and suggestion that OpenAI should prohibit such use of their technology. (@JeffLadish/status/1648880386230071296) (@JeffLadish/status/1648880388172029954)
-- Snapchat seems to have relased their own AI chatbot. (@ipsumkyle/status/1649079777989459968) (@natalietran/status/1648558456570257409)\n""" \
+- Google has announced changes to DeepMind. Google Brain is merging with DeepMind. (twitter.com/natfriedman/status/1649100349888937984) (twitter.com/DeepMind/status/1649097824221511698) (twitter.com/DeepMind/status/1649097822338449409) (twitter.com/KerryLVaughan/status/1649109062313811969)
+- CoreWeave has raised money on recent growth, from investors like Nat Friedman, Daniel Gross, and Nvidia. They are are building a new AWS for AI. (twitter.com/danielgross/status/1649113439917178892) (twitter.com/natfriedman/status/1649101281028624385)
+- Andrew Ng is hosting a talk on Visual Prompting. (twitter.com/AndrewYNg/status/1649135210976657410)
+- There is concern around self-improving agentic AIs and suggestion that OpenAI should prohibit such use of their technology. (twitter.com/JeffLadish/status/1648880386230071296) (twitter.com/JeffLadish/status/1648880388172029954)
+- Snapchat seems to have released their own AI chatbot. (twitter.com/ipsumkyle/status/1649079777989459968) (twitter.com/natalietran/status/1648558456570257409)\n""" \
     "Real list:\n"
     print('tokens', len((prompt + ' ' + tweets).split()))
     resp = chatWithGPT(prompt + '\n' + tweets, model='gpt-4')
