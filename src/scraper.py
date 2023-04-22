@@ -4,15 +4,15 @@ import os
 import re
 import time
 import datetime
-from data.storage import create_storage
-from .emailer import send_email_with_attachment, send_email
+from storage import InMemStorage
+from string import Template
 
 
 class TwitterScraper:
     def __init__(self):
         self.p = sync_playwright().start()
         self.custom_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
-        self.browser = self.p.chromium.launch(headless=True)
+        self.browser = self.p.chromium.launch(headless=False)
         self.context = self.browser.new_context(user_agent=self.custom_user_agent)
 
     def login(self):
@@ -106,6 +106,10 @@ class TwitterScraper:
         finally:
             context.close()
 
+    def find_timeline(self, page):
+        xpath_str = '//div[@aria-label="Timeline: Your Home Timeline"]//article'
+        return page.query_selector_all(xpath_str)
+
     def get_tweets(self, tweet_count=100):
         print(f'getting {tweet_count} tweets...')
         page = self.context.new_page()
@@ -117,8 +121,7 @@ class TwitterScraper:
         tweets = set()
 
         while len(tweets) < tweet_count and (time.time() - then < 180):
-            # TODO accessible-list-1 works locally... but it seems that it might be 0 on aws
-            new_tweets = page.query_selector_all('//section[@aria-labelledby="accessible-list-0"]//article')
+            new_tweets = self.find_timeline(page)
             print('new tweets', len(new_tweets))
             for tweet in new_tweets:
                 inner_html = tweet.inner_html()
@@ -133,14 +136,12 @@ class TwitterScraper:
         return tweets
 
     def scrape(self):
-        tweet_db = create_storage(mode='inmem')
-
         self.login()
         tweets = self.get_tweets(100)
         for tweet in tweets:
             info = self.extract_tweet_info(tweet)
             if info is not None:
-                tweet_id = tweet_db.put(info)
+                tweet_id = InMemStorage.put(info)
                 print('inserted tweet', tweet_id)
             else:
                 print('skipping tweet')
