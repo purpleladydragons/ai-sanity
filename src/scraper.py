@@ -5,14 +5,13 @@ import re
 import time
 import datetime
 from storage import InMemStorage
-from string import Template
 
 
 class TwitterScraper:
     def __init__(self):
         self.p = sync_playwright().start()
         self.custom_user_agent = "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/89.0.4389.82 Safari/537.36"
-        self.browser = self.p.chromium.launch(headless=False)
+        self.browser = self.p.chromium.launch(headless=True)
         self.context = self.browser.new_context(user_agent=self.custom_user_agent)
 
     def login(self):
